@@ -1,10 +1,11 @@
+#include <ftw.h>
 #include <curses.h>
 
 WINDOW *add_window(int height, int width, int y, int x);
 void setLast(void);
 
 void ptop(char *string);
-void vptop(char *fmt, ...);
+void vptop(const char *fmt, ...);
 
 typedef struct screen {
 	int height;
@@ -25,4 +26,7 @@ typedef struct xy {
 } xy;
 
 void pstatus(window return_window, char *string);
-void vpstatus(window return_window, char *string, ...);
+void vpstatus(window return_window, const char *fmt, ...);
+
+
+int getmodules(int argc, char *argv[]);
