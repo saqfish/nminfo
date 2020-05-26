@@ -10,4 +10,4 @@ nminfo.o: nminfo.c nminfo.h display.h
 display.o: display.c display.h
 	$(CC) -c display.c
 clean:
-	rm *.o
+	rm *.o nminfo
