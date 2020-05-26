@@ -3,32 +3,8 @@
 #include <curses.h>
 #include <panel.h>
 
-WINDOW *add_window(int height, int width, int y, int x);
-void setLast(void);
+#include "nminfo.h"
 
-void ptop(char *string);
-void vptop(char *fmt, ...);
-
-typedef struct screen {
-	int height;
-	int width;
-} screen;
-
-typedef struct window {
-	WINDOW *self;
-	int height;
-	int width;
-	int y;
-	int x;
-} window;
-
-typedef struct xy {
-	int y;
-	int x;
-} xy;
-
-void pstatus(window return_window, char *string);
-void vpstatus(window return_window, char *string, ...);
 
 xy getcords(WINDOW *win); 
 screen term;
@@ -95,6 +71,7 @@ WINDOW *add_window(int height, int width, int y, int x)
 	wrefresh(local_win);
 	return local_win;
 }
+
 void pstatus(window return_window, char *string)
 {
 	vpstatus(return_window, "%s", string);
