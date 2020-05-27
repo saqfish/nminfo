@@ -4,8 +4,6 @@
 #define EXTERN_DISPLAY extern
 #endif
 
-#define SPACE 3
-
 typedef struct screen {
 	int height;
 	int width;

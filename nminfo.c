@@ -12,7 +12,7 @@
 
 int main(int argc, char *argv[])
 {
-	dirs = malloc(20 * sizeof(dir));
+	dirs = malloc(30 * sizeof(dir));
 	term = initterm();
 	top = inittop();
 	status = initstatus();
@@ -32,6 +32,9 @@ int main(int argc, char *argv[])
 				break;
 			case 'k':
 				prevdir();
+				break;
+			case 'l':
+				seldir();
 				break;
 		}
 	}

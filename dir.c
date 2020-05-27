@@ -8,24 +8,42 @@
 void listdirs(int sel)
 {
 	wclear(top.self);
-	for(int i = 0; i< dirsize; i++){ 
-		int index = i + 1;
+	int min;
+	int max;
+	if(dirsize > top.height) {
+		if(	dirsel <= (dirsize - top.height)){
+			min = dirsel;
+		}else{
+			min = (dirsize - top.height);
+		}
+		int excess = (dirsize-top.height) - dirsel;
+		max = excess > 0 ? dirsize - excess : dirsize;
+	}else{
+		min = 0;
+		max = dirsize;
+	}
+	// vpstatus(top,"height: %d min: %d max: %d",top.height, min,max);
+	for(int i = min; i < max; i++){ 
 		if(i == dirsel)
-			dprintls(index, dirs[i].size, dirs[i].path);
+			dprintls(i+1, dirs[i].size, dirs[i].path);
 		else
-			dprintl(index, dirs[i].size, dirs[i].path);
+			dprintl(i+1, dirs[i].size, dirs[i].path);
 	}
 }
 
 void nextdir()
 {
-	dirsel = dirsel < (dirsize -1) ? (dirsel + 1) : 0;
+	dirsel = dirsel < (dirsize -1) ? (dirsel + 1) : dirsize - 1;
 	listdirs(dirsel);
 }
 void prevdir()
 {
-	dirsel = dirsel <= (dirsize - 1) && dirsel > 0? (dirsel - 1) : dirsize - 1;
+	dirsel = dirsel > 0 ? (dirsel - 1): 0; 
 	listdirs(dirsel);
+}
+void seldir()
+{
+	serror(dirs[dirsel].path);
 }
 int getmodules(int argc, char *argv[]) {
 	int flags = 0;
@@ -36,10 +54,9 @@ int getmodules(int argc, char *argv[]) {
 	{
 		serror("nftw");
 	}else listdirs(dirsel);
-	vpstatus(top,"Dirs: %d",dirsize);
 }
 
-int
+	int
 addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf)
 {
 	const char *dircheck = "node_modules";

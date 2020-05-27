@@ -17,6 +17,7 @@ EXTERN_DIR int dirsel;
 void listdirs(int sel);
 void nextdir();
 void prevdir();
+void seldir();
 
 int getmodules(int argc, char *argv[]);
 int addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf);

@@ -3,6 +3,8 @@
 
 #include "display.h"
 
+int SPACE = 0;
+
 color_pair color_reg = { 1, COLOR_WHITE, COLOR_BLACK };
 color_pair color_warning = { 2, COLOR_YELLOW, COLOR_BLACK };
 color_pair color_error = { 3, COLOR_RED, COLOR_BLACK };
@@ -16,19 +18,19 @@ screen initterm(){
 		exit(1);
 	}
 	screen temp;
-	
 
 	getmaxyx(stdscr, temp.height, temp.width);
-
 	return temp;
 }
 window inittop(){
+	curs_set(0);
+	SPACE = term.height / 2;
+
 	window temp;
 	temp.height = term.height - SPACE; 
 	temp.width = term.width;
 
 	temp.self = add_window(temp.height, temp.width, 0,0);
-	scrollok(temp.self,TRUE); 
 	return temp;
 }
 
@@ -51,6 +53,7 @@ void initcolors(){
 WINDOW *add_window(int height, int width, int y, int x)
 {	WINDOW *local_win;
 	local_win = newwin(height, width, y, x);
+	// box(local_win, 0, 0);
 	wrefresh(local_win);
 	return local_win;
 }
