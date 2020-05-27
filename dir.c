@@ -11,18 +11,13 @@ void listdirs(int sel)
 	int min;
 	int max;
 	if(dirsize > top.height) {
-		if(	dirsel <= (dirsize - top.height)){
-			min = dirsel;
-		}else{
-			min = (dirsize - top.height);
-		}
+		min = dirsel <= (dirsize - top.height) ? dirsel : (dirsize - top.height);
 		int excess = (dirsize-top.height) - dirsel;
 		max = excess > 0 ? dirsize - excess : dirsize;
 	}else{
 		min = 0;
 		max = dirsize;
 	}
-	// vpstatus(top,"height: %d min: %d max: %d",top.height, min,max);
 	for(int i = min; i < max; i++){ 
 		if(i == dirsel)
 			dprintls(i+1, dirs[i].size, dirs[i].path);
