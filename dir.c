@@ -4,12 +4,13 @@
 #include "dir.h"
 #include "display.h"
 
-
-void listdirs(int sel)
+void 
+listdirs(int sel)
 {
-	wclear(top.self);
 	int min;
 	int max;
+
+	wclear(top.self);
 	if(dirsize > top.height) {
 		min = dirsel <= (dirsize - top.height) ? dirsel : (dirsize - top.height);
 		int excess = (dirsize-top.height) - dirsel;
@@ -26,36 +27,42 @@ void listdirs(int sel)
 	}
 }
 
-void nextdir()
+void 
+nextdir()
 {
 	dirsel = dirsel < (dirsize -1) ? (dirsel + 1) : dirsize - 1;
 	listdirs(dirsel);
 }
-void prevdir()
+
+void 
+prevdir()
 {
 	dirsel = dirsel > 0 ? (dirsel - 1): 0; 
 	listdirs(dirsel);
 }
-void seldir()
+
+void 
+seldir()
 {
 	serror(dirs[dirsel].path);
 }
-int getmodules(int argc, char *argv[]) {
+int 
+getmodules(int argc, char *argv[]) {
 	int flags = 0;
 
 	flags |= FTW_ACTIONRETVAL;
-
 	if (nftw((argc < 2) ? "." : argv[1], addmodules, 20, flags) == -1)
 	{
 		serror("nftw");
 	}else listdirs(dirsel);
 }
 
-	int
+int
 addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf)
 {
 	const char *dircheck = "node_modules";
 	int length = sizeof(dirs);
+
 	if(tflag == FTW_D){
 		const char *filename = fpath + ftwbuf->base;
 		if(strcmp(filename, dircheck) == 0){

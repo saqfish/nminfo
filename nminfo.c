@@ -10,15 +10,14 @@
 #include "display.h"
 #include "dir.h"
 
-int main(int argc, char *argv[])
+int 
+main(int argc, char *argv[])
 {
 	dirs = malloc(30 * sizeof(dir));
 	term = initterm();
 	top = inittop();
 	status = initstatus();
 	initcolors();
-
-
 	getmodules(argc, argv);
 
 	int ch;
