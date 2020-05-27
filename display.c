@@ -52,22 +52,25 @@ WINDOW *add_window(int height, int width, int y, int x)
 
 void serror(char *string)
 {
-	pstatus(top,color_error.number, string);
+	wclear(status.self);
+	pstatus(color_error.number, string);
 }
 
 void slog(char *string)
 {
-	pstatus(top,color_reg.number, string);
+	wclear(status.self);
+	pstatus(color_reg.number, string);
 }
 
 void ssuccess(char *string)
 {
-	pstatus(top,color_success.number, string);
+	wclear(status.self);
+	pstatus(color_success.number, string);
 }
-void pstatus(window return_window, int type, char *string)
+void pstatus(int type, char *string)
 {
 	wattron(status.self, COLOR_PAIR(type));
-	vpstatus(return_window, "%s", string);
+	vpstatus(top, "%s", string);
 	wattroff(status.self, COLOR_PAIR(type));
 }
 
@@ -75,8 +78,6 @@ void vpstatus(window return_window, const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-
-	wclear(status.self);
 
 	vw_printw(status.self, fmt, ap);
 	wrefresh(status.self);
@@ -89,13 +90,20 @@ void vpstatus(window return_window, const char *fmt, ...)
 
 void tlog(char *string)
 {
-	ptop(color_warning.number, string);
+	cvptop(color_warning.number, "%s", string);
 }
-void ptop(int type, char *string)
+void cvptop(int type, const char *fmt, ...)
 {
+	va_list ap;
+	va_start(ap, fmt);
+
 	wattron(top.self, COLOR_PAIR(type));
-	vptop("%s", string);
+	vw_printw(top.self, fmt, ap);
 	wattroff(top.self, COLOR_PAIR(type));
+
+	va_end(ap);
+
+	setlast();
 }
 void vptop(const char *fmt, ...)
 {
@@ -115,4 +123,29 @@ void setlast(){
 	xy cords = getcords(top.self); 
 	top.y = cords.y; 
 	top.x = cords.x;
+}
+
+void dprint(int index, int sel, int size, char *path){
+	int cindex, csize, cpath;
+	if(sel){
+		cindex = color_success.number;
+		csize = color_warning.number;
+		cpath = color_success.number;
+	}
+	else{
+		cindex = color_warning.number;
+		csize = color_warning.number;
+		cpath = color_warning.number;
+	}
+
+	cvptop(cindex, "- %d: ", index);
+	cvptop(csize, "%d ", size);
+	cvptop(cpath, "%s ", path );
+	cvptop(cpath, "\n");
+}
+void dprintls(int index, int size, char *path){
+	dprint(index, 1, size, path);
+}
+void dprintl(int index, int size, char *path){
+	dprint(index, 0, size, path);
 }

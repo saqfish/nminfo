@@ -19,37 +19,41 @@ screen term;
 
 static int addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf);
 
-int main(int argc, char *argv[])
+void listdirs(int sel);
+void nextdir();
+void prevdir();
+
+typedef struct dir {
+	long int size;
+	char *path;
+} dir;
+
+dir *dirs;
+int dirsize = 0;
+int dirsel = 0;
+
+void listdirs(int sel)
 {
-	term = initterm();
-	top = inittop();
-	status = initstatus();
-	initcolors();
-
-	ssuccess("Initialized");
-
-	getmodules(argc, argv);
-
-	int ch;
-	while((ch = wgetch(top.self)) != 'q')
-	{
-		switch(ch){
-			case 'c':
-				for(int i = 0; i < 5; i++) {
-					tlog("testing");
-					tlog("\n");
-				}
-				slog("5 testings added");
-				break;
-			case 'v':
-				vpstatus(top,"y: %d x: %d", top.y, top.x);
-				break;
-		}
+	wclear(top.self);
+	for(int i = 0; i< dirsize; i++){ 
+		int index = i + 1;
+		if(i == dirsel)
+			dprintls(index, dirs[i].size, dirs[i].path);
+		else
+			dprintl(index, dirs[i].size, dirs[i].path);
 	}
-	endwin();
 }
 
-
+void nextdir()
+{
+	dirsel = dirsel < (dirsize -1) ? (dirsel + 1) : 0;
+	listdirs(dirsel);
+}
+void prevdir()
+{
+	dirsel = dirsel <= (dirsize - 1) && dirsel > 0? (dirsel - 1) : dirsize - 1;
+	listdirs(dirsel);
+}
 int getmodules(int argc, char *argv[]) {
 	int flags = 0;
 
@@ -59,20 +63,56 @@ int getmodules(int argc, char *argv[]) {
 	{
 		serror("nftw");
 		exit(EXIT_FAILURE);
-	}
+	}else listdirs(dirsel);
+	vpstatus(top,"Dirs: %d",dirsize);
 }
+
 static int
 addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf)
 {
 	const char *dircheck = "node_modules";
+	int length = sizeof(dirs);
 	if(tflag == FTW_D){
 		const char *filename = fpath + ftwbuf->base;
 		if(strcmp(filename, dircheck) == 0){
-			vptop("%d %s\n", sb->st_size, fpath + 1);
+			dir directory = {sb->st_size};
+			directory.path = malloc(strlen(fpath)+1);
+			strcpy(directory.path, fpath);
+
+			dirs[dirsize++] = directory;
 			return FTW_SKIP_SIBLINGS;
 		}
 	}
 	return 0;
+}
+
+
+int main(int argc, char *argv[])
+{
+	dirs = malloc(20 * sizeof(dir));
+	term = initterm();
+	top = inittop();
+	status = initstatus();
+	initcolors();
+
+
+	getmodules(argc, argv);
+
+	int ch;
+	while((ch = wgetch(top.self)) != 'q')
+	{
+		switch(ch){
+			case 'c':
+				break;
+			case 'j':
+				nextdir();
+				break;
+			case 'k':
+				prevdir();
+				break;
+		}
+	}
+	endwin();
 }
 
 
