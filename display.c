@@ -1,7 +1,12 @@
-#define DISPLAY
-#include "display.h"
 #include <stdlib.h>
+#include <stdarg.h>
 
+#include "display.h"
+
+color_pair color_reg = { 1, COLOR_WHITE, COLOR_BLACK };
+color_pair color_warning = { 2, COLOR_YELLOW, COLOR_BLACK };
+color_pair color_error = { 3, COLOR_RED, COLOR_BLACK };
+color_pair color_success = { 3, COLOR_GREEN, COLOR_BLACK };
 screen initterm(){
 	initscr();
 	noecho();

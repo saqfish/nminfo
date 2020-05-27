@@ -1,5 +1,9 @@
 #include <curses.h>
 
+#ifndef EXTERN_DISPLAY 
+#define EXTERN_DISPLAY extern
+#endif
+
 #define SPACE 3
 
 typedef struct screen {
@@ -20,13 +24,14 @@ typedef struct xy {
 	int x;
 } xy;
 
-extern screen term;
-extern window top;
-extern window status;
+EXTERN_DISPLAY screen term;
+EXTERN_DISPLAY window top;
+EXTERN_DISPLAY window status;
 
 screen initterm();
 window inittop();
 window initstatus();
+
 void initcolors(void);
 
 typedef struct color_pair {
@@ -35,15 +40,11 @@ typedef struct color_pair {
 	int bg;
 } color_pair;
 
-#ifdef DISPLAY
 
-color_pair color_reg = { 1, COLOR_WHITE, COLOR_BLACK };
-color_pair color_warning = { 2, COLOR_YELLOW, COLOR_BLACK };
-color_pair color_error = { 3, COLOR_RED, COLOR_BLACK };
-color_pair color_success = { 3, COLOR_GREEN, COLOR_BLACK };
-
-#endif
-
+EXTERN_DISPLAY color_pair color_reg; 
+EXTERN_DISPLAY color_pair color_warning;
+EXTERN_DISPLAY color_pair color_error;
+EXTERN_DISPLAY color_pair color_success;
 
 WINDOW *add_window(int height, int width, int y, int x);
 xy getcords(WINDOW *win); 
