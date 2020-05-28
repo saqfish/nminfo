@@ -1,6 +1,4 @@
 #define _GNU_SOURCE
-#define EXTERN_DIR
-#define EXTERN_DISPLAY
 
 #include <stdlib.h>
 #include <string.h>
@@ -13,7 +11,7 @@
 int 
 main(int argc, char *argv[])
 {
-	dirs = malloc(30 * sizeof(dir));
+	dirs = NULL;
 	term = initterm();
 	top = inittop();
 	status = initstatus();

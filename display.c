@@ -1,14 +1,16 @@
+#define EXTERN_DISPLAY
 #include <stdlib.h>
 #include <stdarg.h>
 
 #include "display.h"
+
 
 int SPACE = 0;
 
 color_pair color_reg = { 1, COLOR_WHITE, COLOR_BLACK };
 color_pair color_warning = { 2, COLOR_YELLOW, COLOR_BLACK };
 color_pair color_error = { 3, COLOR_RED, COLOR_BLACK };
-color_pair color_success = { 3, COLOR_GREEN, COLOR_BLACK };
+color_pair color_success = { 4, COLOR_GREEN, COLOR_BLACK };
 
 screen 
 initterm(){
@@ -49,6 +51,8 @@ initstatus(){
 	temp.height = SPACE;
 	temp.width = term.width;
 	temp.self = add_window(temp.height, temp.width, term.height - SPACE,0);
+
+	scrollok(temp.self, TRUE);
 
 	return temp;
 }
@@ -161,26 +165,3 @@ setlast(){
 	top.x = cords.x;
 }
 
-void 
-dprint(int index, int sel, int size, char *path){
-	int cindex, csize, cpath;
-
-	cindex = sel ? color_success.number: color_warning.number;
-	csize = sel ? color_warning.number: color_warning.number;
-	cpath = sel ? color_success.number: color_warning.number;
-
-	cvptop(cindex, "- %d: ", index);
-	cvptop(csize, "%d ", size);
-	cvptop(cpath, "%s ", path );
-	cvptop(cpath, "\n");
-}
-
-void 
-dprintls(int index, int size, char *path){
-	dprint(index, 1, size, path);
-}
-
-void 
-dprintl(int index, int size, char *path){
-	dprint(index, 0, size, path);
-}

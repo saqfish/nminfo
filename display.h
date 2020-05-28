@@ -57,7 +57,3 @@ void serror(char *string);
 void slog(char *string);
 void ssuccess(char *string);
 void setlast(void);
-
-void dprint(int index, int sel,int size, char *path);
-void dprintl(int index, int size, char *path);
-void dprintls(int index, int size, char *path);
