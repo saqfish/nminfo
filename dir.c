@@ -31,7 +31,7 @@ getdirname(char *path, int depth){
 	char *ptr = malloc(strlen(path)+1);
 	strcpy(ptr, path);
 
-	int count = 1;
+	int count = 0;
 	while(token = strtok_r(ptr, "//", &rest)) {
 		if(count == depth) {
 			return token;
@@ -122,26 +122,20 @@ addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwb
 			else
 				dirs = realloc(dirs, (dirsize + 1) * sizeof(dir));
 
-			dir directory = {sb->st_size, depth};
+			int realdepth = ftwbuf->level;
+
+			dir directory = {sb->st_size, realdepth - depth};
 			directory.path = malloc(strlen(fpath)+1);
 			strcpy(directory.path, fpath);
 
-			directory.projectname = getdirname(directory.path, (depth*2));
-			directory.parentname = getdirname(directory.path, (depth*2)-2);
-
-			/*
-			./x!/n 1 (2) 2
-			./x!/n/x/n 2 (4) 2
-			./x/n/x!/n/x/n 3 (6) 4
-			./x/n/x/n/x!/n/x/n 4 (8) 6
-			./x/n/x/n/x/n/x!/n/x/n 5 (8) 6
-			*/
+			directory.projectname = getdirname(directory.path, (realdepth - 1));
+			directory.parentname = getdirname(directory.path, depth > 1 ? realdepth- 3 : 1);
 
 			directory.packages = NULL;
 			directory.numpackages = 0;
 			dirs[dirsize] = directory;
 			dirsize++;
-			return FTW_SKIP_SUBTREE;
+			return 0;
 		}
 	}
 	return 0;
