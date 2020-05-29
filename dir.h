@@ -1,4 +1,5 @@
 #include <ftw.h>
+#include <menu.h>
 
 #ifndef EXTERN_DIR 
 #define EXTERN_DIR extern
@@ -24,6 +25,7 @@ typedef struct dir {
 EXTERN_DIR dir *dirs;
 EXTERN_DIR int dirsize;
 EXTERN_DIR int dirsel;
+EXTERN_DIR MENU *dirmenu;
 
 
 int getmodules(int argc, char *argv[]);
@@ -35,7 +37,7 @@ void dprintl(int index, int size, char *parent, char *name);
 void dprintls(int index, int size, char *parent, char *name);
 void dsprint(int depth, char *path);
 
-void listdirs(int sel);
+void listdirs(int sel, int inc);
 void nextdir();
 void prevdir();
 void seldir();

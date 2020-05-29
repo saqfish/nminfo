@@ -1,5 +1,5 @@
-CC=gcc
-CFLAGS=-lncurses
+CC=gcc -g
+CFLAGS=-lmenu -lncurses
 
 nminfo: nminfo.o display.o dir.o
 	$(CC) $(CFLAGS) -o nminfo nminfo.o display.o dir.o

@@ -3,25 +3,45 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "dir.h"
 #include "display.h"
 
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+
+
 void 
 dprint(int depth, int sel, int size, char *parent, char *name){
 	int cindex, carrow, cname;
+	char *arrow = "-->";
+	char *newline = "\n";
 
-	cindex = sel ? color_success.number: color_warning.number;
-	carrow = sel ? color_reg.number: color_reg.number;
-	cname = sel ? color_success.number: color_warning.number;
+	cindex = sel ? color_selected.number: color_warning.number;
+	carrow = sel ? color_selected.number: color_warning.number;
+	cname = sel ? color_selected.number: color_warning.number;
 
-	for(int i = 0; i< depth; i++) 
-			cvptop(carrow, "--");
+	int len = 0;
 
+	for(int i = 0; i< depth; i++) {
+		cvptop(carrow, "--");
+		len += 2;
+	}
+
+	len += strlen(parent);
 	cvptop(cindex, "%s", parent);
-	cvptop(carrow, "->");
+
+	len += strlen(arrow);
+	cvptop(carrow, arrow);
+
+	len += strlen(name);
 	cvptop(cindex, "%s ", name);
-	cvptop(cname, "\n");
+
+	if(len < top.width)
+		for(int i = len; i < top.width - strlen(newline) - 1; i++)
+			cvptop(cindex, " ", name);
+
+	cvptop(cname, newline);
 }
 
 char *
@@ -59,27 +79,27 @@ dsprint(int depth, char *path){
 	vpstatus(top, "\n");
 }
 
-void 
-listdirs(int sel)
+	void 
+listdirs(int sel, int inc)
 {
-	int min;
-	int max;
+	ITEM **entries;
+	int c;				
+	int i;
 
-	wclear(top.self);
-	if(dirsize > top.height) {
-		min = dirsel <= (dirsize - top.height) ? dirsel : (dirsize - top.height);
-		int excess = (dirsize-top.height) - dirsel;
-		max = excess > 0 ? dirsize - excess : dirsize;
-	}else{
-		min = 0;
-		max = dirsize;
-	}
-	for(int i = min; i < max; i++){ 
-		if(i == dirsel)
-			dtprintls(dirs[i].depth, dirs[i].numpackages, dirs[i].parentname, dirs[i].projectname);
-		else
-			dtprintl(dirs[i].depth, dirs[i].numpackages, dirs[i].parentname, dirs[i].projectname);
-	}
+	entries = (ITEM **)calloc(dirsize + 1, sizeof(ITEM *));
+	for(i = 0; i < dirsize; ++i)
+		entries[i] = new_item(dirs[i].parentname ,dirs[i].projectname);
+
+	dirmenu = new_menu((ITEM **)entries);
+
+	set_menu_sub(dirmenu, derwin(top.self, top.height, top.width, 0, 0));
+	set_menu_format(dirmenu, top.height, 1);
+
+	set_menu_mark(dirmenu, " -- ");
+
+	post_menu(dirmenu);
+	wrefresh(top.self);
+
 }
 
 int 
@@ -87,10 +107,19 @@ getmodules(int argc, char *argv[]) {
 	int flags = 0;
 
 	flags |= FTW_ACTIONRETVAL;
+	vpstatus(top, "Scanning for node_modules.. \n");
+
+	clock_t begin = clock();
 	if (nftw((argc < 2) ? "." : argv[1], addmodules, 1, flags) == -1)
 	{
 		serror("nftw");
-	}else listdirs(dirsel);
+	}else {
+		listdirs(dirsel, 1);
+	}
+	clock_t end = clock();
+
+	double duration = (double)(end - begin) / CLOCKS_PER_SEC;
+	vpstatus(top, "%d modules. Done in: %f seconds\n", dirsize, duration);
 }
 
 int 
@@ -98,7 +127,7 @@ getdepth(const char *fpath) {
 	int count = 0;
 	int len = strlen(fpath);
 	char *copy;
-        copy = malloc(len*sizeof(char *));
+	copy = malloc(len*sizeof(char *));
 	strcpy(copy, fpath);
 
 	while (copy = strstr(copy, "node_modules")){
@@ -109,7 +138,7 @@ getdepth(const char *fpath) {
 	return count;
 }
 
-int
+	int
 addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf)
 {
 	const char *dircheck = "node_modules";
@@ -146,14 +175,17 @@ void
 nextdir()
 {
 	dirsel = dirsel < (dirsize -1) ? (dirsel + 1) : dirsize - 1;
-	listdirs(dirsel);
+	menu_driver(dirmenu, REQ_DOWN_ITEM);
+	wrefresh(top.self);
+
 }
 
 void 
 prevdir()
 {
 	dirsel = dirsel > 0 ? (dirsel - 1): 0; 
-	listdirs(dirsel);
+	menu_driver(dirmenu, REQ_UP_ITEM);
+	wrefresh(top.self);
 }
 
 void 

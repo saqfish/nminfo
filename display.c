@@ -10,7 +10,7 @@ int SPACE = 0;
 color_pair color_reg = { 1, COLOR_WHITE, COLOR_BLACK };
 color_pair color_warning = { 2, COLOR_YELLOW, COLOR_BLACK };
 color_pair color_error = { 3, COLOR_RED, COLOR_BLACK };
-color_pair color_success = { 4, COLOR_GREEN, COLOR_BLACK };
+color_pair color_selected = { 4, COLOR_BLACK, COLOR_RED };
 
 screen 
 initterm(){
@@ -34,10 +34,13 @@ inittop(){
 
 	curs_set(0);
 
-	SPACE = term.height / 2;
+
+	SPACE = 10;
 	temp.height = term.height - SPACE; 
 	temp.width = term.width;
 	temp.self = add_window(temp.height, temp.width, 0,0);
+
+	scrollok(temp.self, TRUE);
 
 	return temp;
 }
@@ -50,7 +53,7 @@ initstatus(){
 
 	temp.height = SPACE;
 	temp.width = term.width;
-	temp.self = add_window(temp.height, temp.width, term.height - SPACE,0);
+	temp.self = add_window(temp.height, temp.width, term.height - SPACE+1,0);
 
 	scrollok(temp.self, TRUE);
 
@@ -62,7 +65,7 @@ initcolors(){
 	init_pair(color_reg.number, color_reg.fg, color_reg.bg);
 	init_pair(color_error.number, color_error.fg, color_error.bg);
 	init_pair(color_warning.number, color_warning.fg, color_warning.bg);
-	init_pair(color_success.number, color_success.fg, color_success.bg);
+	init_pair(color_selected.number, color_selected.fg, color_selected.bg);
 }
 
 WINDOW 

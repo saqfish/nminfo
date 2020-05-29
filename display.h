@@ -43,6 +43,7 @@ EXTERN_DISPLAY color_pair color_reg;
 EXTERN_DISPLAY color_pair color_warning;
 EXTERN_DISPLAY color_pair color_error;
 EXTERN_DISPLAY color_pair color_success;
+EXTERN_DISPLAY color_pair color_selected;
 
 WINDOW *add_window(int height, int width, int y, int x);
 xy getcords(WINDOW *win); 
