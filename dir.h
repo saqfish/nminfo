@@ -5,20 +5,12 @@
 #define EXTERN_DIR extern
 #endif
 
-typedef struct package {
-	long int size;
-	int depth;
-	char *path;
-} package;
-
 typedef struct dir {
 	long int size;
 	int depth;
 	char *projectname;
 	char *parentname;
-	int numpackages;
 	char *path;
-	struct dir *packages;
 } dir;
 
 

@@ -83,12 +83,11 @@ dsprint(int depth, char *path){
 listdirs(int sel, int inc)
 {
 	ITEM **entries;
-	int c;				
-	int i;
+	int c,i;
 
 	entries = (ITEM **)calloc(dirsize + 1, sizeof(ITEM *));
 	for(i = 0; i < dirsize; ++i)
-		entries[i] = new_item(dirs[i].parentname ,dirs[i].projectname);
+		entries[i] = new_item(dirs[i].projectname ,dirs[i].parentname);
 
 	dirmenu = new_menu((ITEM **)entries);
 
@@ -138,6 +137,39 @@ getdepth(const char *fpath) {
 	return count;
 }
 
+char *
+getparents(char *path){
+	char *rest; 
+	char *token; 
+	char *ptr = malloc(strlen(path)+1);
+	strcpy(ptr, path);
+
+	char *parents;
+	char *arrow = "-->";
+
+	int count = 0;
+	while(token = strtok_r(ptr, "//", &rest)) {
+		if(strcmp("node_modules", token) != 0) {
+			if(count == 0) {
+				parents = malloc(strlen(token)+1);
+				strcpy(parents, token);
+			}
+			else {
+				parents = realloc(parents, strlen(parents) + strlen(arrow)+1);
+				strcat(parents, arrow);
+
+				parents = realloc(parents, strlen(parents) + strlen(token)+1);
+				strcat(parents, token);
+			}
+
+			
+		}
+		ptr = rest;
+		count++;
+	}
+	return parents;
+}
+
 	int
 addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf)
 {
@@ -158,10 +190,8 @@ addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwb
 			strcpy(directory.path, fpath);
 
 			directory.projectname = getdirname(directory.path, (realdepth - 1));
-			directory.parentname = getdirname(directory.path, depth > 1 ? realdepth- 3 : 1);
+			directory.parentname = getparents(directory.path);
 
-			directory.packages = NULL;
-			directory.numpackages = 0;
 			dirs[dirsize] = directory;
 			dirsize++;
 			return 0;
