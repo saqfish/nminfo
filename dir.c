@@ -62,22 +62,6 @@ getdirname(char *path, int depth){
 	return "";
 }
 
-void 
-dtprintls(int depth, int size, char *parent, char *name){
-	dprint(depth, 1, size, parent, name);
-}
-
-void 
-dtprintl(int depth, int size, char *parent, char *name){
-	dprint(depth, 0, size, parent, name);
-}
-
-void 
-dsprint(int depth, char *path){
-	vpstatus(top, "--- %d: ", depth);
-	vpstatus(top, "%s ", path );
-	vpstatus(top, "\n");
-}
 
 	void 
 listdirs(int sel, int inc)
@@ -94,7 +78,12 @@ listdirs(int sel, int inc)
 	set_menu_sub(dirmenu, derwin(top.self, top.height, top.width, 0, 0));
 	set_menu_format(dirmenu, top.height, 1);
 
-	set_menu_mark(dirmenu, " -- ");
+	// set_menu_mark(dirmenu, " -- ");
+
+	set_menu_fore(dirmenu, COLOR_PAIR(color_warning.number) | A_REVERSE);
+	set_menu_back(dirmenu, COLOR_PAIR(color_reg.number));
+	set_menu_grey(dirmenu, COLOR_PAIR(color_selected.number));
+
 
 	post_menu(dirmenu);
 	wrefresh(top.self);
@@ -206,8 +195,6 @@ nextdir()
 {
 	dirsel = dirsel < (dirsize -1) ? (dirsel + 1) : dirsize - 1;
 	menu_driver(dirmenu, REQ_DOWN_ITEM);
-	wrefresh(top.self);
-
 }
 
 void 
@@ -215,12 +202,11 @@ prevdir()
 {
 	dirsel = dirsel > 0 ? (dirsel - 1): 0; 
 	menu_driver(dirmenu, REQ_UP_ITEM);
-	wrefresh(top.self);
 }
 
 void 
 seldir()
 {
 	wclear(status.self);
-	dsprint(dirs[dirsel].depth, dirs[dirsel].path);
+	vpstatus(top, "Path: %s", dirs[dirsel].path);
 }
