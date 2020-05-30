@@ -31,7 +31,10 @@ main(int argc, char *argv[])
 				prevdir();
 				break;
 			case 'l':
-				seldir();
+				seldir(0);
+				break;
+			case 'h':
+				seldir(1);
 				break;
 		}
 	}

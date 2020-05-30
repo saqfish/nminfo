@@ -8,41 +8,6 @@
 #include "dir.h"
 #include "display.h"
 
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
-
-
-void 
-dprint(int depth, int sel, int size, char *parent, char *name){
-	int cindex, carrow, cname;
-	char *arrow = "-->";
-	char *newline = "\n";
-
-	cindex = sel ? color_selected.number: color_warning.number;
-	carrow = sel ? color_selected.number: color_warning.number;
-	cname = sel ? color_selected.number: color_warning.number;
-
-	int len = 0;
-
-	for(int i = 0; i< depth; i++) {
-		cvptop(carrow, "--");
-		len += 2;
-	}
-
-	len += strlen(parent);
-	cvptop(cindex, "%s", parent);
-
-	len += strlen(arrow);
-	cvptop(carrow, arrow);
-
-	len += strlen(name);
-	cvptop(cindex, "%s ", name);
-
-	if(len < top.width)
-		for(int i = len; i < top.width - strlen(newline) - 1; i++)
-			cvptop(cindex, " ", name);
-
-	cvptop(cname, newline);
-}
 
 char *
 getdirname(char *path, int depth){
@@ -63,22 +28,32 @@ getdirname(char *path, int depth){
 }
 
 
-	void 
-listdirs(int sel, int inc)
+void 
+listdirs(int sel, int shrt)
 {
 	ITEM **entries;
+	ITEM *selitem;
+	int topindex;
 	int c,i;
 
+	topindex = top_row(dirmenu);
+
 	entries = (ITEM **)calloc(dirsize + 1, sizeof(ITEM *));
-	for(i = 0; i < dirsize; ++i)
-		entries[i] = new_item(dirs[i].projectname ,dirs[i].parentname);
+	for(i = 0; i < dirsize; ++i){
+		if(shrt){
+			entries[i] = new_item(dirs[i].parentname, dirs[i].projectname);
+		}else{
+			entries[i] = new_item(dirs[i].path + 1, dirs[i].projectname);
+		}
+		if(i == dirsel) selitem = entries[i];
+	}
 
 	dirmenu = new_menu((ITEM **)entries);
 
+	menu_opts_off(dirmenu, O_SHOWDESC);
+
 	set_menu_sub(dirmenu, derwin(top.self, top.height, top.width, 0, 0));
 	set_menu_format(dirmenu, top.height, 1);
-
-	// set_menu_mark(dirmenu, " -- ");
 
 	set_menu_fore(dirmenu, COLOR_PAIR(color_warning.number) | A_REVERSE);
 	set_menu_back(dirmenu, COLOR_PAIR(color_reg.number));
@@ -88,6 +63,8 @@ listdirs(int sel, int inc)
 	post_menu(dirmenu);
 	wrefresh(top.self);
 
+	set_top_row(dirmenu, topindex);
+	set_current_item(dirmenu, selitem);
 }
 
 int 
@@ -102,7 +79,7 @@ getmodules(int argc, char *argv[]) {
 	{
 		serror("nftw");
 	}else {
-		listdirs(dirsel, 1);
+		listdirs(dirsel, 0);
 	}
 	clock_t end = clock();
 
@@ -127,39 +104,47 @@ getdepth(const char *fpath) {
 }
 
 char *
-getparents(char *path){
+getparents(char *path, int depth){
 	char *rest; 
 	char *token; 
 	char *ptr = malloc(strlen(path)+1);
-	strcpy(ptr, path);
+	strcpy(ptr, path + 1);
 
 	char *parents;
-	char *arrow = "-->";
+	char *slash = "/";
+	char *extra = "..";
+	char *nmextra = "--";
 
-	int count = 0;
+	int count = 1;
+	int nestcount = 0;
+
+	parents = malloc(strlen(slash)+1);
+	strcpy(parents, slash);
+
 	while(token = strtok_r(ptr, "//", &rest)) {
 		if(strcmp("node_modules", token) != 0) {
-			if(count == 0) {
-				parents = malloc(strlen(token)+1);
-				strcpy(parents, token);
-			}
-			else {
-				parents = realloc(parents, strlen(parents) + strlen(arrow)+1);
-				strcat(parents, arrow);
-
+			if(!nestcount || count <= 1){
 				parents = realloc(parents, strlen(parents) + strlen(token)+1);
 				strcat(parents, token);
+			}else{
+				parents = realloc(parents, strlen(parents) + strlen(extra)+1);
+				strcat(parents, extra);
 			}
-
-			
+			nestcount++;
+		}else{
+			parents = realloc(parents, strlen(parents) + strlen(nmextra)+1);
+			strcat(parents, nmextra);
+			nestcount = 0;
 		}
+		parents = realloc(parents, strlen(parents) + strlen(slash)+1);
+		strcat(parents, slash);
 		ptr = rest;
 		count++;
 	}
 	return parents;
 }
 
-	int
+int
 addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf)
 {
 	const char *dircheck = "node_modules";
@@ -174,12 +159,12 @@ addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwb
 
 			int realdepth = ftwbuf->level;
 
-			dir directory = {sb->st_size, realdepth - depth};
+			dir directory = {sb->st_size, realdepth };
 			directory.path = malloc(strlen(fpath)+1);
 			strcpy(directory.path, fpath);
 
 			directory.projectname = getdirname(directory.path, (realdepth - 1));
-			directory.parentname = getparents(directory.path);
+			directory.parentname = getparents(directory.path, ftwbuf->level);
 
 			dirs[dirsize] = directory;
 			dirsize++;
@@ -205,8 +190,8 @@ prevdir()
 }
 
 void 
-seldir()
+seldir(int shrt)
 {
-	wclear(status.self);
-	vpstatus(top, "Path: %s", dirs[dirsel].path);
+	wclear(top.self);
+	listdirs(dirsel, shrt);
 }
