@@ -19,7 +19,7 @@ main(int argc, char *argv[])
 	getmodules(argc, argv);
 
 	int ch;
-	while((ch = wgetch(top.self)) != 'q')
+	while((ch = wgetch(status.self)) != 'q')
 	{
 		switch(ch){
 			case 'c':
@@ -31,16 +31,23 @@ main(int argc, char *argv[])
 				prevdir();
 				break;
 			case 'l':
-				seldir(0);
+				seldir();
 				break;
 			case 'h':
-				seldir(1);
+				seldir();
+				break;
+			case 'v':
+				setmode(mode_multi);
 				break;
 			case 'd':
 				setmode(mode_delete);
-				listdirs(dirsel);
 				break;
 		}
+		if(dmode == mode_multi.number){
+			dirs[dirsel].selected = dirs[dirsel].selected == TRUE ? FALSE : TRUE;
+		}
+		initmenu();
+		wrefresh(top.self);
 	}
 
 	cleanup_dir();

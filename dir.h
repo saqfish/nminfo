@@ -8,9 +8,9 @@
 typedef struct dir {
 	long int size;
 	int depth;
-	char *projectname;
 	char *parentname;
 	char *path;
+	int selected;
 } dir;
 
 
@@ -24,7 +24,7 @@ int getmodules(int argc, char *argv[]);
 int addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf);
 char * getdirname(char *path, int level);
 
-void listdirs();
+void initmenu();
 void nextdir();
 void prevdir();
 void seldir();

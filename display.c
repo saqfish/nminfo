@@ -13,6 +13,7 @@ color_pair const color_error = { 3, COLOR_RED, COLOR_BLACK };
 color_pair const color_selected = { 4, COLOR_BLACK, COLOR_RED };
 
 mode const mode_browse = {color_reg.number};
+mode const mode_multi = {color_warning.number};
 mode const mode_delete = {color_error.number};
 
 screen 
@@ -106,19 +107,18 @@ void
 pstatus(int type, char *string)
 {
 	wattron(status.self, COLOR_PAIR(type));
-	vpstatus(top, "%s", string);
+	vpstatus("%s", string);
 	wattroff(status.self, COLOR_PAIR(type));
 }
 
 void 
-vpstatus(window return_window, const char *fmt, ...)
+vpstatus(const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
 
 	vw_printw(status.self, fmt, ap);
 	wrefresh(status.self);
-	wmove(return_window.self, return_window.y, return_window.x);
 	wrefresh(status.self);
 
 	va_end(ap);
@@ -133,7 +133,7 @@ xy getcords(WINDOW *win) {
 
 void 
 setmode(mode mode){
-	dmode = mode.number;
+	dmode = dmode == mode.number ? mode_browse.number : mode.number;
 }
 
 int 

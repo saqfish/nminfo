@@ -32,7 +32,7 @@ getdirname(char *path, int depth){
 
 
 void 
-listdirs()
+initmenu()
 {
 	ITEM *selitem;
 	int topindex;
@@ -42,8 +42,10 @@ listdirs()
 
 	entries = (ITEM **)calloc(dirsize + 1, sizeof(ITEM *));
 	for(i = 0; i < dirsize; ++i){
-		entries[i] = new_item(dirs[i].path + 1, dirs[i].projectname);
+		entries[i] = new_item(dirs[i].path + 1, dirs[i].path);
 		if(i == dirsel) selitem = entries[i];
+		if(dirs[i].selected) 
+			item_opts_off(entries[i], O_SELECTABLE);
 	}
 
 	dirmenu = new_menu((ITEM **)entries);
@@ -55,7 +57,7 @@ listdirs()
 
 	set_menu_fore(dirmenu, COLOR_PAIR(getmode()) | A_REVERSE);
 	set_menu_back(dirmenu, COLOR_PAIR(color_reg.number));
-	set_menu_grey(dirmenu, COLOR_PAIR(color_selected.number));
+	set_menu_grey(dirmenu, COLOR_PAIR(color_warning.number) | A_REVERSE);
 
 
 	post_menu(dirmenu);
@@ -72,19 +74,19 @@ getmodules(int argc, char *argv[]) {
 	int flags = 0;
 
 	flags |= FTW_ACTIONRETVAL;
-	vpstatus(top, "Scanning for node_modules.. \n");
+	vpstatus("Scanning for node_modules.. \n");
 
 	clock_t begin = clock();
 	if (nftw((argc < 2) ? "." : argv[1], addmodules, 1, flags) == -1)
 	{
 		serror("nftw");
 	}else {
-		listdirs(dirsel, 0);
+		initmenu();
 	}
 	clock_t end = clock();
 
 	double duration = (double)(end - begin) / CLOCKS_PER_SEC;
-	vpstatus(top, "%d modules. Done in: %f seconds\n", dirsize, duration);
+	vpstatus("%d modules. Done in: %f seconds\n", dirsize, duration);
 }
 
 int 
@@ -121,7 +123,7 @@ addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwb
 			directory.path = malloc(strlen(fpath)+1);
 			strcpy(directory.path, fpath);
 
-			directory.projectname = getdirname(directory.path, (realdepth - 1));
+			directory.selected = FALSE;
 
 			dirs[dirsize] = directory;
 			dirsize++;
@@ -136,7 +138,6 @@ void
 nextdir()
 {
 	dirsel = dirsel < (dirsize -1) ? (dirsel + 1) : dirsize - 1;
-	set_menu_fore(dirmenu, COLOR_PAIR(getmode()) | A_REVERSE);
 	menu_driver(dirmenu, REQ_DOWN_ITEM);
 }
 
@@ -144,13 +145,15 @@ void
 prevdir()
 {
 	dirsel = dirsel > 0 ? (dirsel - 1): 0; 
-	set_menu_fore(dirmenu, COLOR_PAIR(getmode()) | A_REVERSE);
 	menu_driver(dirmenu, REQ_UP_ITEM);
 }
 
 void 
-seldir(int shrt)
+seldir()
 {
+	if(dmode == mode_multi.number){
+		dirs[dirsel].selected = TRUE;
+	}
 }
 
 

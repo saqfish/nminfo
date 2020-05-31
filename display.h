@@ -51,6 +51,7 @@ typedef struct mode {
 
 EXTERN_DISPLAY int dmode;
 EXTERN_DISPLAY const mode mode_delete;
+EXTERN_DISPLAY const mode mode_multi;
 EXTERN_DISPLAY const mode mode_browse;
 
 void setmode(mode mode);
@@ -60,7 +61,7 @@ WINDOW *add_window(int height, int width, int y, int x);
 xy getcords(WINDOW *win); 
 
 void pstatus(int type, char *string);
-void vpstatus(window return_window, const char *fmt, ...);
+void vpstatus(const char *fmt, ...);
 void serror(char *string);
 void slog(char *string);
 void ssuccess(char *string);
