@@ -28,3 +28,6 @@ void listdirs(int sel, int inc);
 void nextdir();
 void prevdir();
 void seldir();
+void setmode();
+
+void cleanup_dir();

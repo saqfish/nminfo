@@ -22,6 +22,7 @@ typedef struct xy {
 	int x;
 } xy;
 
+
 EXTERN_DISPLAY screen term;
 EXTERN_DISPLAY window top;
 EXTERN_DISPLAY window status;
@@ -38,12 +39,22 @@ typedef struct color_pair {
 	int bg;
 } color_pair;
 
+EXTERN_DISPLAY const color_pair color_reg; 
+EXTERN_DISPLAY const color_pair color_warning;
+EXTERN_DISPLAY const color_pair color_error;
+EXTERN_DISPLAY const color_pair color_success;
+EXTERN_DISPLAY const color_pair color_selected;
 
-EXTERN_DISPLAY color_pair color_reg; 
-EXTERN_DISPLAY color_pair color_warning;
-EXTERN_DISPLAY color_pair color_error;
-EXTERN_DISPLAY color_pair color_success;
-EXTERN_DISPLAY color_pair color_selected;
+typedef struct mode {
+	int number;
+} mode;
+
+EXTERN_DISPLAY int dmode;
+EXTERN_DISPLAY const mode mode_delete;
+EXTERN_DISPLAY const mode mode_browse;
+
+void setmode(mode mode);
+int getmode();
 
 WINDOW *add_window(int height, int width, int y, int x);
 xy getcords(WINDOW *win); 
@@ -58,3 +69,5 @@ void serror(char *string);
 void slog(char *string);
 void ssuccess(char *string);
 void setlast(void);
+
+void cleanup_display(void);

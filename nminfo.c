@@ -36,7 +36,15 @@ main(int argc, char *argv[])
 			case 'h':
 				seldir(1);
 				break;
+			case 'd':
+				setmode(mode_delete);
+				listdirs(dirsel);
+				break;
 		}
 	}
+
+	cleanup_dir();
+	cleanup_display();
+	free(dirs);
 	endwin();
 }

@@ -7,10 +7,13 @@
 
 int SPACE = 0;
 
-color_pair color_reg = { 1, COLOR_WHITE, COLOR_BLACK };
-color_pair color_warning = { 2, COLOR_YELLOW, COLOR_BLACK };
-color_pair color_error = { 3, COLOR_RED, COLOR_BLACK };
-color_pair color_selected = { 4, COLOR_BLACK, COLOR_RED };
+color_pair const color_reg = { 1, COLOR_WHITE, COLOR_BLACK };
+color_pair const color_warning = { 2, COLOR_YELLOW, COLOR_BLACK };
+color_pair const color_error = { 3, COLOR_RED, COLOR_BLACK };
+color_pair const color_selected = { 4, COLOR_BLACK, COLOR_RED };
+
+mode const mode_browse = {color_reg.number};
+mode const mode_delete = {color_error.number};
 
 screen 
 initterm(){
@@ -168,3 +171,17 @@ setlast(){
 	top.x = cords.x;
 }
 
+void 
+setmode(mode mode){
+	dmode = mode.number;
+}
+
+int 
+getmode(){
+	return dmode;
+}
+
+void 
+cleanup_display(){
+
+}

@@ -9,6 +9,8 @@
 #include "display.h"
 
 
+ITEM **entries;
+
 char *
 getdirname(char *path, int depth){
 	char *rest; 
@@ -24,6 +26,7 @@ getdirname(char *path, int depth){
 		ptr = rest;
 		count++;
 	}
+	free(ptr);
 	return "";
 }
 
@@ -31,7 +34,6 @@ getdirname(char *path, int depth){
 void 
 listdirs(int sel, int shrt)
 {
-	ITEM **entries;
 	ITEM *selitem;
 	int topindex;
 	int c,i;
@@ -55,7 +57,7 @@ listdirs(int sel, int shrt)
 	set_menu_sub(dirmenu, derwin(top.self, top.height, top.width, 0, 0));
 	set_menu_format(dirmenu, top.height, 1);
 
-	set_menu_fore(dirmenu, COLOR_PAIR(color_warning.number) | A_REVERSE);
+	set_menu_fore(dirmenu, COLOR_PAIR(getmode()) | A_REVERSE);
 	set_menu_back(dirmenu, COLOR_PAIR(color_reg.number));
 	set_menu_grey(dirmenu, COLOR_PAIR(color_selected.number));
 
@@ -65,6 +67,8 @@ listdirs(int sel, int shrt)
 
 	set_top_row(dirmenu, topindex);
 	set_current_item(dirmenu, selitem);
+
+	free_item(selitem);
 }
 
 int 
@@ -99,7 +103,6 @@ getdepth(const char *fpath) {
 		count++;
 		copy++;
 	}
-	free(copy);
 	return count;
 }
 
@@ -174,11 +177,18 @@ addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwb
 	return 0;
 }
 
+void cleanup_dir(){
+	free_menu(dirmenu);
+	for(int i = 0; i < dirsize; ++i){
+		free_item(entries[i]);
+	}
+}
 
 void 
 nextdir()
 {
 	dirsel = dirsel < (dirsize -1) ? (dirsel + 1) : dirsize - 1;
+	set_menu_fore(dirmenu, COLOR_PAIR(getmode()) | A_REVERSE);
 	menu_driver(dirmenu, REQ_DOWN_ITEM);
 }
 
@@ -186,6 +196,7 @@ void
 prevdir()
 {
 	dirsel = dirsel > 0 ? (dirsel - 1): 0; 
+	set_menu_fore(dirmenu, COLOR_PAIR(getmode()) | A_REVERSE);
 	menu_driver(dirmenu, REQ_UP_ITEM);
 }
 
