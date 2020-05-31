@@ -24,7 +24,7 @@ int getmodules(int argc, char *argv[]);
 int addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf);
 char * getdirname(char *path, int level);
 
-void listdirs(int sel, int inc);
+void listdirs();
 void nextdir();
 void prevdir();
 void seldir();

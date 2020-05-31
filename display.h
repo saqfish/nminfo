@@ -59,15 +59,10 @@ int getmode();
 WINDOW *add_window(int height, int width, int y, int x);
 xy getcords(WINDOW *win); 
 
-void vptop(const char *fmt, ...);
-void cvptop(int type, const char *fmt, ...);
-void tlog(char *string);
-
 void pstatus(int type, char *string);
 void vpstatus(window return_window, const char *fmt, ...);
 void serror(char *string);
 void slog(char *string);
 void ssuccess(char *string);
-void setlast(void);
 
 void cleanup_display(void);

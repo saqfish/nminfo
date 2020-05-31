@@ -32,7 +32,7 @@ getdirname(char *path, int depth){
 
 
 void 
-listdirs(int sel, int shrt)
+listdirs()
 {
 	ITEM *selitem;
 	int topindex;
@@ -42,11 +42,7 @@ listdirs(int sel, int shrt)
 
 	entries = (ITEM **)calloc(dirsize + 1, sizeof(ITEM *));
 	for(i = 0; i < dirsize; ++i){
-		if(shrt){
-			entries[i] = new_item(dirs[i].parentname, dirs[i].projectname);
-		}else{
-			entries[i] = new_item(dirs[i].path + 1, dirs[i].projectname);
-		}
+		entries[i] = new_item(dirs[i].path + 1, dirs[i].projectname);
 		if(i == dirsel) selitem = entries[i];
 	}
 
@@ -106,47 +102,6 @@ getdepth(const char *fpath) {
 	return count;
 }
 
-char *
-getparents(char *path, int depth){
-	char *rest; 
-	char *token; 
-	char *ptr = malloc(strlen(path)+1);
-	strcpy(ptr, path + 1);
-
-	char *parents;
-	char *slash = "/";
-	char *extra = "..";
-	char *nmextra = "--";
-
-	int count = 1;
-	int nestcount = 0;
-
-	parents = malloc(strlen(slash)+1);
-	strcpy(parents, slash);
-
-	while(token = strtok_r(ptr, "//", &rest)) {
-		if(strcmp("node_modules", token) != 0) {
-			if(!nestcount || count <= 1){
-				parents = realloc(parents, strlen(parents) + strlen(token)+1);
-				strcat(parents, token);
-			}else{
-				parents = realloc(parents, strlen(parents) + strlen(extra)+1);
-				strcat(parents, extra);
-			}
-			nestcount++;
-		}else{
-			parents = realloc(parents, strlen(parents) + strlen(nmextra)+1);
-			strcat(parents, nmextra);
-			nestcount = 0;
-		}
-		parents = realloc(parents, strlen(parents) + strlen(slash)+1);
-		strcat(parents, slash);
-		ptr = rest;
-		count++;
-	}
-	return parents;
-}
-
 int
 addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwbuf)
 {
@@ -167,7 +122,6 @@ addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwb
 			strcpy(directory.path, fpath);
 
 			directory.projectname = getdirname(directory.path, (realdepth - 1));
-			directory.parentname = getparents(directory.path, ftwbuf->level);
 
 			dirs[dirsize] = directory;
 			dirsize++;
@@ -177,12 +131,6 @@ addmodules(const char *fpath, const struct stat *sb, int tflag, struct FTW *ftwb
 	return 0;
 }
 
-void cleanup_dir(){
-	free_menu(dirmenu);
-	for(int i = 0; i < dirsize; ++i){
-		free_item(entries[i]);
-	}
-}
 
 void 
 nextdir()
@@ -203,6 +151,13 @@ prevdir()
 void 
 seldir(int shrt)
 {
-	wclear(top.self);
-	listdirs(dirsel, shrt);
+}
+
+
+void 
+cleanup_dir(){
+	free_menu(dirmenu);
+	for(int i = 0; i < dirsize; ++i){
+		free_item(entries[i]);
+	}
 }

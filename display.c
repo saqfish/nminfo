@@ -76,7 +76,6 @@ WINDOW
 {	WINDOW *local_win;
 
 	local_win = newwin(height, width, y, x);
-	// box(local_win, 0, 0);
 	wrefresh(local_win);
 
 	return local_win;
@@ -123,39 +122,6 @@ vpstatus(window return_window, const char *fmt, ...)
 	wrefresh(status.self);
 
 	va_end(ap);
-	setlast();
-}
-
-void 
-tlog(char *string)
-{
-	cvptop(color_warning.number, "%s", string);
-}
-void 
-cvptop(int type, const char *fmt, ...)
-{
-	va_list ap;
-	
-	va_start(ap, fmt);
-	wattron(top.self, COLOR_PAIR(type));
-	vw_printw(top.self, fmt, ap);
-	wattroff(top.self, COLOR_PAIR(type));
-
-	va_end(ap);
-
-	setlast();
-}
-
-void 
-vptop(const char *fmt, ...)
-{
-	va_list ap;
-
-	va_start(ap, fmt);
-	vw_printw(top.self, fmt, ap);
-	va_end(ap);
-
-	setlast();
 }
 
 xy getcords(WINDOW *win) {
@@ -164,12 +130,6 @@ xy getcords(WINDOW *win) {
 	return cords;
 }
 
-void 
-setlast(){
-	xy cords = getcords(top.self); 
-	top.y = cords.y; 
-	top.x = cords.x;
-}
 
 void 
 setmode(mode mode){
